@@ -1,0 +1,29 @@
+{
+  "name": "encyclopedia-vue-frontend",
+  "version": "1.0.0",
+  "description": "百科词条管理系统 - Vue前端",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "serve": "vite preview --port 3000"
+  },
+  "dependencies": {
+    "vue": "^3.3.4",
+    "vue-router": "^4.2.4",
+    "pinia": "^2.1.6",
+    "axios": "^1.4.0",
+    "@vueuse/core": "^10.1.2",
+    "bootstrap": "^5.3.0",
+    "@popperjs/core": "^2.11.8"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^4.2.3",
+    "vite": "^4.4.5",
+    "sass": "^1.63.6"
+  },
+  "keywords": ["vue", "encyclopedia", "django", "frontend"],
+  "author": "百科词条项目组",
+  "license": "MIT"
+}

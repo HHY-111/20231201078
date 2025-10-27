@@ -1,0 +1,184 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ entry.title }} - {{ block.super }}{% endblock %}
+
+{% block page_title %}{{ entry.title }}{% endblock %}
+{% block page_subtitle %}
+    {% if entry.category %}
+    <span class="badge bg-primary">{{ entry.category.name }}</span>
+    {% endif %}
+    <small class="text-muted">
+        <i class="fas fa-user"></i> {{ entry.author.username }} 
+        <i class="fas fa-clock ms-2"></i> {{ entry.published_at|date:'Y-m-d H:i' }}
+        <i class="fas fa-eye ms-2"></i> {{ entry.view_count }}
+    </small>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- 词条内容 -->
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-body">
+                <!-- 标签 -->
+                {% if entry.tags.all %}
+                <div class="mb-3">
+                    {% for tag in entry.tags.all %}
+                    <span class="badge bg-success me-1">{{ tag.name }}</span>
+                    {% endfor %}
+                </div>
+                {% endif %}
+                
+                <!-- 摘要 -->
+                {% if entry.summary %}
+                <div class="alert alert-info">
+                    <strong>摘要：</strong>{{ entry.summary }}
+                </div>
+                {% endif %}
+                
+                <!-- 内容 -->
+                <div class="entry-content">
+                    {{ entry.content|linebreaks }}
+                </div>
+                
+                <!-- 操作按钮 -->
+                <div class="mt-4 d-flex justify-content-between">
+                    <div>
+                        <button class="btn btn-outline-primary btn-sm">
+                            <i class="fas fa-thumbs-up"></i> 点赞 ({{ entry.like_count }})
+                        </button>
+                        <button class="btn btn-outline-secondary btn-sm ms-2">
+                            <i class="fas fa-share"></i> 分享
+                        </button>
+                    </div>
+                    
+                    {% if user == entry.author %}
+                    <div>
+                        <a href="{% url 'encyclopedia:entry_edit' entry.pk %}" 
+                           class="btn btn-warning btn-sm">
+                            <i class="fas fa-edit"></i> 编辑
+                        </a>
+                        <a href="{% url 'encyclopedia:entry_delete' entry.pk %}" 
+                           class="btn btn-danger btn-sm ms-2">
+                            <i class="fas fa-trash"></i> 删除
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- 评论区域 -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-comments"></i> 评论 ({{ comments.count }})
+                </h5>
+            </div>
+            
+            <div class="card-body">
+                <!-- 评论表单 -->
+                {% if user.is_authenticated %}
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        {{ comment_form.content.label_tag }}
+                        {{ comment_form.content }}
+                    </div>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-paper-plane"></i> 发表评论
+                    </button>
+                </form>
+                {% else %}
+                <div class="alert alert-info">
+                    请<a href="{% url 'admin:login' %}?next={{ request.path }}">登录</a>后发表评论
+                </div>
+                {% endif %}
+                
+                <!-- 评论列表 -->
+                <div class="mt-4">
+                    {% for comment in comments %}
+                    <div class="comment-item mb-3">
+                        <div class="d-flex">
+                            <div class="flex-shrink-0">
+                                <i class="fas fa-user-circle fa-2x text-muted"></i>
+                            </div>
+                            <div class="flex-grow-1 ms-3">
+                                <div class="d-flex justify-content-between">
+                                    <strong>{{ comment.author.username }}</strong>
+                                    <small class="text-muted">{{ comment.created_at|date:'Y-m-d H:i' }}</small>
+                                </div>
+                                <p class="mb-1">{{ comment.content }}</p>
+                                
+                                <!-- 回复 -->
+                                {% for reply in comment.replies.all %}
+                                <div class="d-flex mt-2 ms-3">
+                                    <div class="flex-shrink-0">
+                                        <i class="fas fa-reply fa-lg text-muted"></i>
+                                    </div>
+                                    <div class="flex-grow-1 ms-3">
+                                        <div class="d-flex justify-content-between">
+                                            <strong>{{ reply.author.username }}</strong>
+                                            <small class="text-muted">{{ reply.created_at|date:'Y-m-d H:i' }}</small>
+                                        </div>
+                                        <p class="mb-1">{{ reply.content }}</p>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                    <hr>
+                    {% empty %}
+                    <p class="text-muted text-center py-3">暂无评论，快来发表第一条评论吧！</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 侧边栏 -->
+    <div class="col-lg-4">
+        <!-- 作者信息 -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h6 class="mb-0">作者信息</h6>
+            </div>
+            <div class="card-body text-center">
+                <i class="fas fa-user-circle fa-3x text-primary mb-2"></i>
+                <h5>{{ entry.author.username }}</h5>
+                <p class="text-muted">
+                    创建了 {{ entry.author.entry_set.count }} 个词条
+                </p>
+            </div>
+        </div>
+        
+        <!-- 相关词条 -->
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0">相关词条</h6>
+            </div>
+            <div class="card-body">
+                {% with related_entries=entry.category.entry_set.exclude(pk=entry.pk).filter(status='published')|slice:":5" %}
+                {% if related_entries %}
+                <ul class="list-unstyled">
+                    {% for related in related_entries %}
+                    <li class="mb-2">
+                        <a href="{% url 'encyclopedia:entry_detail' related.pk %}" 
+                           class="text-decoration-none">
+                            {{ related.title }}
+                        </a>
+                        <br>
+                        <small class="text-muted">{{ related.created_at|date:'Y-m-d' }}</small>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <p class="text-muted">暂无相关词条</p>
+                {% endif %}
+                {% endwith %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

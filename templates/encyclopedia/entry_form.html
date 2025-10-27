@@ -1,0 +1,160 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if entry %}编辑{% else %}创建{% endif %}词条 - {{ block.super }}{% endblock %}
+
+{% block page_title %}{% if entry %}编辑词条{% else %}创建新词条{% endif %}{% endblock %}
+{% block page_subtitle %}{% if entry %}修改 "{{ entry.title }}" 的内容{% else %}分享您的知识和见解{% endif %}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    {% if form.errors %}
+                    <div class="alert alert-danger">
+                        <strong>请修正以下错误：</strong>
+                        <ul class="mb-0">
+                            {% for field in form %}
+                                {% for error in field.errors %}
+                                    <li>{{ field.label }}: {{ error }}</li>
+                                {% endfor %}
+                            {% endfor %}
+                            {% for error in form.non_field_errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- 标题 -->
+                    <div class="mb-3">
+                        <label for="{{ form.title.id_for_label }}" class="form-label">
+                            <strong>{{ form.title.label }}</strong>
+                        </label>
+                        {{ form.title }}
+                        <div class="form-text">请输入清晰、准确的词条标题</div>
+                    </div>
+                    
+                    <!-- 摘要 -->
+                    <div class="mb-3">
+                        <label for="{{ form.summary.id_for_label }}" class="form-label">
+                            <strong>{{ form.summary.label }}</strong>
+                        </label>
+                        {{ form.summary }}
+                        <div class="form-text">简要描述词条内容（可选）</div>
+                    </div>
+                    
+                    <!-- 内容 -->
+                    <div class="mb-3">
+                        <label for="{{ form.content.id_for_label }}" class="form-label">
+                            <strong>{{ form.content.label }}</strong>
+                        </label>
+                        {{ form.content }}
+                        <div class="form-text">详细描述词条内容，支持多行文本</div>
+                    </div>
+                    
+                    <!-- 分类和标签 -->
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="{{ form.category.id_for_label }}" class="form-label">
+                                    <strong>{{ form.category.label }}</strong>
+                                </label>
+                                {{ form.category }}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="{{ form.tags.id_for_label }}" class="form-label">
+                                    <strong>{{ form.tags.label }}</strong>
+                                </label>
+                                {{ form.tags }}
+                                <div class="form-text">按住 Ctrl 键可选择多个标签</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 状态 -->
+                    <div class="mb-4">
+                        <label for="{{ form.status.id_for_label }}" class="form-label">
+                            <strong>{{ form.status.label }}</strong>
+                        </label>
+                        {{ form.status }}
+                        <div class="form-text">
+                            <ul class="mb-0">
+                                <li><strong>草稿：</strong>仅自己可见，可继续编辑</li>
+                                <li><strong>已发布：</strong>公开可见，其他用户可浏览</li>
+                                <li><strong>已归档：</strong>不再显示在列表中</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <!-- 操作按钮 -->
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{% if entry %}{% url 'encyclopedia:entry_detail' entry.pk %}{% else %}{% url 'encyclopedia:entry_list' %}{% endif %}" 
+                           class="btn btn-secondary me-md-2">
+                            <i class="fas fa-times"></i> 取消
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> 
+                            {% if entry %}更新词条{% else %}创建词条{% endif %}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- 编辑帮助 -->
+        {% if entry %}
+        <div class="card mt-4">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="fas fa-info-circle"></i> 编辑信息
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-4">
+                        <strong>创建时间</strong>
+                        <p class="mb-0">{{ entry.created_at|date:'Y-m-d H:i' }}</p>
+                    </div>
+                    <div class="col-4">
+                        <strong>最后更新</strong>
+                        <p class="mb-0">{{ entry.updated_at|date:'Y-m-d H:i' }}</p>
+                    </div>
+                    <div class="col-4">
+                        <strong>浏览次数</strong>
+                        <p class="mb-0">{{ entry.view_count }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// 自动调整文本域高度
+function autoResizeTextarea(textarea) {
+    textarea.style.height = 'auto';
+    textarea.style.height = (textarea.scrollHeight) + 'px';
+}
+
+// 为内容文本域添加自动调整功能
+document.addEventListener('DOMContentLoaded', function() {
+    const contentTextarea = document.getElementById('{{ form.content.id_for_label }}');
+    if (contentTextarea) {
+        contentTextarea.addEventListener('input', function() {
+            autoResizeTextarea(this);
+        });
+        // 初始化时调整高度
+        autoResizeTextarea(contentTextarea);
+    }
+});
+</script>
+{% endblock %}

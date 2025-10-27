@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Django SinglePage 应用预览</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 10px;
+        }
+        .nav {
+            margin: 20px 0;
+            display: flex;
+            gap: 10px;
+        }
+        .nav button {
+            padding: 10px 20px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .nav button:hover {
+            background: #0056b3;
+        }
+        .content {
+            margin-top: 20px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background: #f9f9f9;
+        }
+        .warning {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="warning">
+            <strong>注意：</strong> 这是Django SinglePage应用的HTML预览版本。要运行完整的Django应用，需要安装Python环境。
+        </div>
+        
+        <h1>Django SinglePage 应用预览</h1>
+        
+        <div class="nav">
+            <button onclick="showContent('home')">首页</button>
+            <button onclick="showContent('about')">关于</button>
+            <button onclick="showContent('services')">服务</button>
+            <button onclick="showContent('contact')">联系我们</button>
+        </div>
+        
+        <div id="content" class="content">
+            <h2>欢迎来到 SinglePage 应用</h2>
+            <p>这是一个单页面Django应用的预览版本。</p>
+            <p>完整功能包括：</p>
+            <ul>
+                <li>动态内容加载</li>
+                <li>URL路由管理</li>
+                <li>模板系统</li>
+                <li>Django后台管理</li>
+            </ul>
+        </div>
+        
+        <div style="margin-top: 30px; padding: 15px; background: #e9ecef; border-radius: 4px;">
+            <h3>安装说明：</h3>
+            <ol>
+                <li>下载并安装 Python：https://www.python.org/downloads/</li>
+                <li>安装依赖：<code>pip install -r requirements.txt</code></li>
+                <li>启动服务器：<code>python manage.py runserver 8000</code></li>
+                <li>访问：http://localhost:8000/</li>
+            </ol>
+        </div>
+    </div>
+
+    <script>
+        function showContent(section) {
+            const content = document.getElementById('content');
+            const sections = {
+                'home': '<h2>首页</h2><p>这是应用的主页内容。</p><p>在完整Django版本中，这里会动态加载模板内容。</p>',
+                'about': '<h2>关于我们</h2><p>关于页面的内容。</p><p>展示公司或项目信息。</p>',
+                'services': '<h2>我们的服务</h2><p>服务介绍页面。</p><p>详细描述提供的各项服务。</p>',
+                'contact': '<h2>联系我们</h2><p>联系方式页面。</p><p>包含地址、电话、邮箱等信息。</p>'
+            };
+            content.innerHTML = sections[section] || sections['home'];
+        }
+    </script>
+</body>
+</html>
